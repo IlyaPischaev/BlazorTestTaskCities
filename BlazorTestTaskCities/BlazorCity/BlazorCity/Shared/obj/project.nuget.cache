@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "uCzTEJFNqxN7yFPwoDFo9llqbeQiAcuphJyxGiw4CgLkknIxwRxA+r3ozSf9O+AuEOffCteeM03Qx+uYOAs0tw==",
+  "success": true,
+  "projectFilePath": "C:\\Work\\C#\\Тестовое Blazor WebAssembly\\BlazorCity\\BlazorCity\\Shared\\BlazorCity.Shared.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\User\\.nuget\\packages\\system.componentmodel.annotations\\5.0.0\\system.componentmodel.annotations.5.0.0.nupkg.sha512"
+  ],
+  "logs": []
+}

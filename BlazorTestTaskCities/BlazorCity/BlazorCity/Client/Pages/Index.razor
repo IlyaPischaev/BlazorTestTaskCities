@@ -1,0 +1,102 @@
+﻿@page "/"
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col">
+
+            <table class="table table-striped">
+                <thead class="table-dark">
+                    <tr>
+                        <th scope="col">Название города</th>
+                        <th scope="col">Население</th>
+                        <th scope="col">Дата основания</th>
+                        <th scope="col"></th>
+                        <th scope="col"></th>
+                    </tr>
+                </thead>
+                @foreach (var item in cities)
+                {
+                    <tbody>
+                        <tr>
+                            <td>
+                                @item.CityName
+                            </td>
+                            <td>
+                                @item.CityPopulation
+                            </td>
+                            <td>
+                                @item.CityDoundationDay.@item.CityDoundationMonth.@item.CityFoundationYear
+                            </td>
+                            <td>
+                                <button class="btn btn-info" @onclick="@(() => EditCity(item.CityId))">Редактировать</button>
+                            </td>
+                            <td>
+                                <button class="btn btn-danger" @onclick="@(() => DeleteCity(item.CityId))">Удалить</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                }
+            </table>
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<City> cities = new List<City>();
+    private HubConnection hubConnection;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Console.WriteLine("Here");
+
+        hubConnection = new HubConnectionBuilder()
+        .WithUrl(NavigationManager.ToAbsoluteUri("/CityHub"))
+        .Build();
+
+        hubConnection.On("RecieveMessage", () =>
+        {
+            CallLoadData();
+            StateHasChanged();
+        });
+
+        await hubConnection.StartAsync();
+        await LoadData();
+    }
+
+    private void CallLoadData()
+    {
+        Task.Run(async () =>
+        {
+            await LoadData();
+        });
+    }
+
+    protected async Task LoadData()
+    {
+        cities = await Http.GetFromJsonAsync<List<City>>("City");
+        StateHasChanged();
+    }
+
+    Task Send() => hubConnection.SendAsync("SendMessage");
+
+    public bool IsConnected =>
+    hubConnection.State == HubConnectionState.Connected;
+
+    private async Task DeleteCity(int id)
+    {
+        await Http.DeleteAsync("City/" + id);
+        if (IsConnected) await Send();
+    }
+
+    private void EditCity(int id)
+    {
+        NavigationManager.NavigateTo("/editcity/" + id);
+    }
+
+    public void Dispose()
+    {
+        _ = hubConnection.DisposeAsync();
+    }
+}
